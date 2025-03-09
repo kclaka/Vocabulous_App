@@ -38,6 +38,7 @@ import com.aregyan.compose.ui.auth.RegisterScreen
 import com.aregyan.compose.ui.auth.model.AuthState
 import com.aregyan.compose.ui.details.DetailsScreen
 import com.aregyan.compose.ui.home.HomeScreen
+import com.aregyan.compose.ui.search.SearchScreen
 import com.aregyan.compose.ui.users.UsersScreen
 import com.aregyan.compose.ui.vocabulary.AddWordScreen
 import com.aregyan.compose.ui.vocabulary.FlashcardScreen
@@ -59,7 +60,7 @@ fun ComposeApp() {
     // Define bottom navigation items with Phosphor icons
     val bottomNavItems = listOf(
         BottomNavItem("Home", Route.HOME, PhosphorIcons.Bold.House),
-        BottomNavItem("Flashcards", Route.FLASHCARDS,  PhosphorIcons.Regular.BookOpen),
+        BottomNavItem("Flashcards", Route.FLASHCARDS_HOME,  PhosphorIcons.Regular.BookOpen),
         BottomNavItem("Add", Route.ADD_WORD, PhosphorIcons.Regular.Plus),
         BottomNavItem("Search", Route.SEARCH, PhosphorIcons.Regular.MagnifyingGlass),
         BottomNavItem("Profile", Route.PROFILE, PhosphorIcons.Regular.User)
@@ -139,7 +140,9 @@ fun ComposeApp() {
             // Main app screens
             composable(Route.HOME) {
                 HomeScreen(
-                    navigateToFlashcards = { navController.navigate(Route.FLASHCARDS) },
+                    navigateToFlashcards = { categoryId -> 
+                        navController.navigate("${Route.FLASHCARDS}/$categoryId")
+                    },
                     navigateToAddWord = { navController.navigate(Route.ADD_WORD) },
                     navigateToProfile = { navController.navigate(Route.PROFILE) },
                     navigateToReview = { navController.navigate(Route.REVIEW) },
@@ -172,8 +175,28 @@ fun ComposeApp() {
             }
             
             // Vocabulary learning screens
-            composable(Route.FLASHCARDS) {
+            composable(Route.FLASHCARDS_HOME) {
+                // Flashcards home screen - shows all categories
                 FlashcardScreen(
+                    categoryId = null,
+                    navigateToAddWord = { navController.navigate(Route.ADD_WORD) },
+                    navigateToHome = { navController.navigate(Route.HOME) }
+                )
+            }
+            
+            composable(
+                route = "${Route.FLASHCARDS}/{${Argument.CATEGORY_ID}}",
+                arguments = listOf(
+                    navArgument(Argument.CATEGORY_ID) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString(Argument.CATEGORY_ID)
+                FlashcardScreen(
+                    categoryId = categoryId,
                     navigateToAddWord = { navController.navigate(Route.ADD_WORD) },
                     navigateToHome = { navController.navigate(Route.HOME) }
                 )
@@ -194,10 +217,11 @@ fun ComposeApp() {
             }
             
             composable(Route.SEARCH) {
-                // Temporary placeholder - will be implemented later
-                FlashcardScreen(
-                    navigateToAddWord = { navController.navigate(Route.ADD_WORD) },
-                    navigateToHome = { navController.navigate(Route.HOME) }
+                SearchScreen(
+                    onNavigateToWordPackDetail = { wordPackId ->
+                        // Navigate to flashcards with the word pack ID
+                        navController.navigate("${Route.FLASHCARDS}/$wordPackId")
+                    }
                 )
             }
         }
@@ -218,6 +242,7 @@ object Route {
     // New vocabulary routes
     const val HOME = "home"
     const val FLASHCARDS = "flashcards"
+    const val FLASHCARDS_HOME = "flashcards_home"
     const val ADD_WORD = "add_word"
     const val REVIEW = "review"
     const val SEARCH = "search"
@@ -225,4 +250,5 @@ object Route {
 
 object Argument {
     const val USERNAME = "username"
+    const val CATEGORY_ID = "categoryId"
 }

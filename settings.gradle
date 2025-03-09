@@ -14,5 +14,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "Jetpack Compose Boilerplate"
+rootProject.name = "Vocabulous"
 include ':app'

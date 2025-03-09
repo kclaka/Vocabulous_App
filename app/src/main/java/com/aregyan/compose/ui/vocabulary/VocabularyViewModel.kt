@@ -88,12 +88,39 @@ class VocabularyViewModel @Inject constructor(
         loadCategories()
     }
 
-    private fun loadCategories() {
+    fun loadCategories() {
         viewModelScope.launch {
             vocabularyRepository.getAllCategories().collect {
                 _categories.value = it
                 if (it.isNotEmpty() && _selectedCategoryId.value == null) {
                     _selectedCategoryId.value = it.first().id
+                }
+            }
+        }
+    }
+    
+    // Find a category by word pack name or ID
+    fun findCategoryByWordPack(wordPackNameOrId: String) {
+        viewModelScope.launch {
+            // First try to find by exact name match
+            val category = categories.value.find { it.name == wordPackNameOrId }
+            
+            if (category != null) {
+                selectCategory(category.id)
+            } else {
+                // If no exact match, try to find a category that contains the word pack name
+                val partialMatch = categories.value.find { 
+                    it.name.contains(wordPackNameOrId, ignoreCase = true) ||
+                    wordPackNameOrId.contains(it.name, ignoreCase = true)
+                }
+                
+                if (partialMatch != null) {
+                    selectCategory(partialMatch.id)
+                } else {
+                    // If still no match, just use the first category if available
+                    if (categories.value.isNotEmpty()) {
+                        selectCategory(categories.value.first().id)
+                    }
                 }
             }
         }

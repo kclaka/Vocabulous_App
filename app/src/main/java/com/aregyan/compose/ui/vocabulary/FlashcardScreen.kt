@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardScreen(
+    categoryId: String? = null,
     navigateToAddWord: () -> Unit,
     navigateToHome: () -> Unit = {},
     viewModel: VocabularyViewModel = hiltViewModel()
@@ -67,10 +68,30 @@ fun FlashcardScreen(
     
     val coroutineScope = rememberCoroutineScope()
     
+    // Set the selected category when the screen is first loaded with a categoryId parameter
+    LaunchedEffect(categoryId, categories) {
+        if (categoryId != null && categoryId.isNotEmpty()) {
+            // First try to find a category with this exact ID
+            val exactMatch = categories.find { it.id == categoryId }
+            if (exactMatch != null) {
+                viewModel.selectCategory(categoryId)
+            } else {
+                // If not found, use the new function to find by word pack name or ID
+                viewModel.findCategoryByWordPack(categoryId)
+            }
+        } else if (categories.isNotEmpty() && selectedCategoryId == null) {
+            // If no category ID provided, select the first one
+            viewModel.selectCategory(categories.first().id)
+        }
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Flashcards") },
+                title = { 
+                    val category = categories.find { it.id == selectedCategoryId }
+                    Text(category?.name ?: "Flashcards") 
+                },
                 navigationIcon = {
                     IconButton(onClick = navigateToHome) {
                         Icon(PhosphorIcons.Regular.House, contentDescription = "Go to Home")
@@ -89,7 +110,6 @@ fun FlashcardScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Categories horizontal scrollable list
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,7 +129,6 @@ fun FlashcardScreen(
             if (words.isEmpty()) {
                 EmptyWordsView(navigateToAddWord)
             } else {
-                // Flashcard
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -129,14 +148,12 @@ fun FlashcardScreen(
                     }
                 }
                 
-                // Navigation controls
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Previous button
                     IconButton(
                         onClick = { viewModel.previousFlashcard(words) },
                         enabled = currentIndex > 0
@@ -148,7 +165,6 @@ fun FlashcardScreen(
                         )
                     }
                     
-                    // Next button
                     IconButton(
                         onClick = { viewModel.nextFlashcard(words) },
                         enabled = currentIndex < words.size - 1
@@ -161,7 +177,6 @@ fun FlashcardScreen(
                     }
                 }
                 
-                // Proficiency rating
                 if (isFlipped) {
                     ProficiencyRatingBar(
                         onRatingSelected = { rating ->
@@ -237,7 +252,6 @@ fun FlashcardView(
             enter = fadeIn(animationSpec = tween(250, 250)),
             exit = fadeOut(animationSpec = tween(250))
         ) {
-            // Front of card (word)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -276,7 +290,6 @@ fun FlashcardView(
                         
                         Spacer(modifier = Modifier.width(8.dp))
                         
-                        // Audio pronunciation button
                         IconButton(
                             onClick = { viewModel.playWordPronunciation(word.word, context) },
                             modifier = Modifier.size(32.dp)
@@ -289,7 +302,6 @@ fun FlashcardView(
                         }
                     }
                 } else {
-                    // Even if there's no pronunciation text, still offer audio
                     Spacer(modifier = Modifier.height(8.dp))
                     IconButton(
                         onClick = { viewModel.playWordPronunciation(word.word, context) },
@@ -319,7 +331,6 @@ fun FlashcardView(
             enter = fadeIn(animationSpec = tween(250, 250)),
             exit = fadeOut(animationSpec = tween(250))
         ) {
-            // Back of card (definition)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -359,7 +370,6 @@ fun FlashcardView(
                     }
                 }
                 
-                // Bookmark button
                 IconButton(
                     onClick = onBookmark,
                     modifier = Modifier

@@ -112,3 +112,7 @@ fabric.properties
 # Service account keys
 *-firebase-adminsdk-*.json
 service-account-*.json
+
+# scripts
+scripts/*
+scripts/serviceAccountKey.json

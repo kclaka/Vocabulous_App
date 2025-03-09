@@ -17,5 +17,24 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
+    
+    // Word packs collection - public access for reading
+    match /word_packs/{packId} {
+      // Allow any authenticated user to read word packs
+      allow read: if request.auth != null;
+      // Only allow admin to write (you can customize this as needed)
+      allow write: if false; // Restrict writing to admin via Firebase Console for now
+      
+      // Allow authenticated users to read words in word packs
+      match /words/{wordId} {
+        allow read: if request.auth != null;
+      }
+    }
+    
+    // User word packs collection
+    match /user_word_packs/{userId} {
+      // Allow users to read and write their own downloaded word packs
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }

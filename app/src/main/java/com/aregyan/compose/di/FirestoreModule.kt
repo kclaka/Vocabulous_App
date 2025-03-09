@@ -1,5 +1,8 @@
 package com.aregyan.compose.di
 
+import com.aregyan.compose.data.db.VocabularyWordDao
+import com.aregyan.compose.data.db.WordCategoryDao
+import com.aregyan.compose.data.db.WordPackDao
 import com.aregyan.compose.repository.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,5 +41,17 @@ object FirestoreModule {
         auth: FirebaseAuth
     ): IGrammarRepository {
         return FirestoreGrammarRepository(firestore, auth)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWordPackRepository(
+        firestore: FirebaseFirestore,
+        auth: FirebaseAuth,
+        wordPackDao: WordPackDao,
+        vocabularyWordDao: VocabularyWordDao,
+        wordCategoryDao: WordCategoryDao
+    ): WordPackRepository {
+        return FirestoreWordPackRepository(firestore, auth, wordPackDao, vocabularyWordDao, wordCategoryDao)
     }
 }

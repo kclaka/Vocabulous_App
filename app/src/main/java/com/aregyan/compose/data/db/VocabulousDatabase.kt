@@ -12,6 +12,7 @@ import com.aregyan.compose.data.model.QuizResult
 import com.aregyan.compose.data.model.UserProgress
 import com.aregyan.compose.data.model.VocabularyWord
 import com.aregyan.compose.data.model.WordCategory
+import com.aregyan.compose.data.model.WordPack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,9 +24,10 @@ import kotlinx.coroutines.withContext
         QuizResult::class,
         GrammarLesson::class,
         GrammarExercise::class,
-        PronunciationExercise::class
+        PronunciationExercise::class,
+        WordPack::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -38,6 +40,7 @@ abstract class VocabulousDatabase : RoomDatabase() {
     abstract fun grammarLessonDao(): GrammarLessonDao
     abstract fun grammarExerciseDao(): GrammarExerciseDao
     abstract fun pronunciationExerciseDao(): PronunciationExerciseDao
+    abstract fun wordPackDao(): WordPackDao
     
     /**
      * Clears all data from the database
@@ -51,6 +54,7 @@ abstract class VocabulousDatabase : RoomDatabase() {
             grammarLessonDao().deleteAllLessons()
             grammarExerciseDao().deleteAllExercises()
             pronunciationExerciseDao().deleteAllExercises()
+            wordPackDao().deleteAllWordPacks()
         }
     }
     

@@ -49,39 +49,43 @@ object DatabaseModule {
     
     // DAOs
     @Provides
-    @Singleton
     fun provideVocabularyWordDao(database: VocabulousDatabase): VocabularyWordDao {
         return database.vocabularyWordDao()
     }
     
     @Provides
-    @Singleton
     fun provideWordCategoryDao(database: VocabulousDatabase): WordCategoryDao {
         return database.wordCategoryDao()
     }
     
     @Provides
-    @Singleton
     fun provideUserProgressDao(database: VocabulousDatabase): UserProgressDao {
         return database.userProgressDao()
     }
     
     @Provides
-    @Singleton
     fun provideQuizResultDao(database: VocabulousDatabase): QuizResultDao {
         return database.quizResultDao()
     }
     
     @Provides
-    @Singleton
     fun provideGrammarLessonDao(database: VocabulousDatabase): GrammarLessonDao {
         return database.grammarLessonDao()
     }
     
     @Provides
-    @Singleton
     fun provideGrammarExerciseDao(database: VocabulousDatabase): GrammarExerciseDao {
         return database.grammarExerciseDao()
+    }
+    
+    @Provides
+    fun providePronunciationExerciseDao(database: VocabulousDatabase): PronunciationExerciseDao {
+        return database.pronunciationExerciseDao()
+    }
+    
+    @Provides
+    fun provideWordPackDao(database: VocabulousDatabase): WordPackDao {
+        return database.wordPackDao()
     }
     
     // Repositories
