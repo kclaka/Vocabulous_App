@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Base rule - deny all access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // User profiles
+    match /users/{userId} {
+      // Allow users to read and write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // User-specific collections
+      match /{collection}/{docId} {
+        // Allow users to read and write their own data
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
